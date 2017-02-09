@@ -20,7 +20,38 @@ class TabBar extends Component {
     hideOnChildTabs: PropTypes.bool,
   };
 
-  static onSelect(el) {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      tabBarMarginBottom: new Animated.Value(0),
+    }
+    this.renderScene = this.renderScene.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const {animateBars: prevAnimateBars} = this.props;
+    const {animateBars} = nextProps;
+    if(animateBars !== undefined && animateBars !== null && prevAnimateBars !== animateBars) {
+      this.animateHideTabBar(animateBars);
+    }
+  }
+
+  animateHideTabBar(hide) {
+    if(this.animated) {
+      this.animated.stop();
+    }
+    const targetValue = hide ? -50 : 0;
+    this.animated = Animated.timing(
+      this.state.tabBarMarginBottom,
+      {
+        toValue: targetValue,
+        duration: 350,
+      }
+    );
+    this.animated.start();
+  }
+
+  onSelect(el) {
     if (!Actions[el.props.name]) {
       throw new Error(
         `No action is defined for name=${el.props.name} ` +
@@ -31,11 +62,6 @@ class TabBar extends Component {
     } else {
       Actions[el.props.name]();
     }
-  }
-
-  constructor(props, context) {
-    super(props, context);
-    this.renderScene = this.renderScene.bind(this);
   }
 
   renderScene(navigationState) {
@@ -57,23 +83,27 @@ class TabBar extends Component {
       (this.props.hideOnChildTabs && deepestExplicitValueForKey(selected, 'tabs'));
 
     const contents = (
-      <Tabs
-        style={state.tabBarStyle}
-        selectedIconStyle={state.tabBarSelectedItemStyle}
-        iconStyle={state.tabBarIconContainerStyle}
-        onSelect={TabBar.onSelect} {...state}
-        selected={selected.sceneKey}
-        pressOpacity={this.props.pressOpacity}
-      >
-        {state.children.filter(el => el.icon || this.props.tabIcon).map((el) => {
-          const Icon = el.icon || this.props.tabIcon;
-          return <Icon {...this.props} {...el} />;
-        })}
-      </Tabs>
+      <Animated.View style={{
+         marginBottom: this.state.tabBarMarginBottom
+      }}>
+        <Tabs
+          style={[state.tabBarStyle]}
+          selectedIconStyle={state.tabBarSelectedItemStyle}
+          iconStyle={state.tabBarIconContainerStyle}
+          onSelect={TabBar.onSelect} {...state}
+          selected={selected.sceneKey}
+          pressOpacity={this.props.pressOpacity}
+        >
+          {state.children.filter(el => el.icon || this.props.tabIcon).map((el) => {
+            const Icon = el.icon || this.props.tabIcon;
+            return <Icon {...this.props} {...el} />;
+          })}
+        </Tabs>
+      </Animated.View>
     );
     return (
       <View
-        style={{ flex: 1 }}
+        style={{ flex: 1, }}
       >
         <TabbedView
           navigationState={this.props.navigationState}
@@ -90,7 +120,11 @@ class TabBar extends Component {
       </View>
     );
   }
-
 }
 
-export default TabBar;
+const mapStateToProps = state => {
+  return {
+    animateBars: state.homeReducer.animateBars,
+  }
+}
+export default connect(mapStateToProps)(TabBar);
