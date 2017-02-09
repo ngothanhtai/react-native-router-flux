@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import {
   Image,
   View,
+  Animated,
 } from 'react-native';
 import Tabs from 'react-native-tabs';
 import DefaultRenderer from './DefaultRenderer';
