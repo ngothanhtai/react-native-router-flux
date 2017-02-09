@@ -92,7 +92,7 @@ class TabBar extends Component {
           style={[state.tabBarStyle]}
           selectedIconStyle={state.tabBarSelectedItemStyle}
           iconStyle={state.tabBarIconContainerStyle}
-          onSelect={TabBar.onSelect} {...state}
+          onSelect={this.onSelect} {...state}
           selected={selected.sceneKey}
           pressOpacity={this.props.pressOpacity}
         >
