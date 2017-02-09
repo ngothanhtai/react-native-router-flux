@@ -8,6 +8,7 @@ import DefaultRenderer from './DefaultRenderer';
 import Actions from './Actions';
 import TabbedView from './TabbedView';
 import { deepestExplicitValueForKey } from './Util';
+import {connect} from 'react-redux';
 
 class TabBar extends Component {
 
